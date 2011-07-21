@@ -46,18 +46,17 @@ This class has a few additional features that some users may find useful
 
 The SMS library supports optional parameters for the following:
 
-* Custom from address
-	The string displayed on a phone when they receive a message
-* Long SMS Support (Default: on)
-	A standard text can contain 160 characters, a long SMS supports up to 459.
-* Use SSL (Default: on)
-	Use SSL when making an HTTP request to the mediaburst API
+* Custom from address - The string displayed on a phone when they receive a message
+* Long SMS Support (Default: on) - A standard text can contain 160 characters, a long SMS supports up to 459.
+* Use SSL (Default: on) - Use SSL when making an HTTP request to the mediaburst API
 
 ### Setting Options
 Options can be passed as an array when creating the sms object
+
 	$sms = new mediaburstSMS('username', 'password', array('from'=> 'from') );
 
 Or set individually using properties
+
 	$sms = new mediaburstSMS('username', 'password');
 	$sms->from = 'php_code';
 
@@ -66,6 +65,8 @@ You can define constants used by the library to save having to pass them each ti
 
 * MEDIABURST_USER - API Username
 * MEDIABURST_PASS - API Password
+
+For exmaple: 
 
 	define('MEDIABURST_USER', 'username');
 	define('MEDIABURST_PASS', 'password');
