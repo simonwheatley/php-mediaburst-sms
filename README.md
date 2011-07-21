@@ -2,7 +2,7 @@ mediaburstSMS
 =============
 
 This class lets you interact with the mediaburst SMS API without 
-the hassle or having to create any XML or make HTTP calls.
+the hassle of having to create any XML or make HTTP calls.
 
 Installation
 ------------
@@ -12,6 +12,7 @@ Usage
 -----
 
 Include the class in to your project
+
 	include('mediaburstSMS.class.php');
 
 ### Sending a message
