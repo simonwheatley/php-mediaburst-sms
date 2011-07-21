@@ -26,12 +26,15 @@ Include the class in to your project
 The mediaburstSMS class will throw exceptions if the entire call failed. 
 
 For example sending the wrong username:
+
 	try {
 		$sms = new mediaburstSMS('wrong_username', 'password');
 	} catch (mediaburstException $e) {
 		echo "Exception sending SMS: '.$e->getMessage();
 	}
+
 will produce the response
+
 	Exception sending SMS: Invalid Username Or Password
 
 Advanced Usage
@@ -42,6 +45,7 @@ This class has a few additional features that some users may find useful
 ### Optional Parameters
 
 The SMS library supports optional parameters for the following:
+
 * Custom from address
 	The string displayed on a phone when they receive a message
 * Long SMS Support (Default: on)
@@ -59,6 +63,7 @@ Or set individually using properties
 
 ### Global Defaults
 You can define constants used by the library to save having to pass them each time it is called
+
 * MEDIABURST_USER - API Username
 * MEDIABURST_PASS - API Password
 
