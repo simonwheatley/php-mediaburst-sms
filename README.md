@@ -19,14 +19,13 @@ Include the class in to your project
 
 You can send a message to a single number or an array of numbers
 
-1. Single
-
+	// Create the SMS object
 	$sms = new mediaburstSMS('username', 'password');
+
+	// Send to a single number
 	$result = $sms->Send('447123456789', 'Hello World');
 
-2. Array
-	
-	$sms = new mediaburstSMS('username', 'password');
+	// Send to multiple numbers
 	$result = $sms->Send(array('mobile_number_1', 'mobile_number_2'), 'Hello World');
 	
 The Send call will return an array of responses, one for each number sent to. 
