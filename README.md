@@ -16,10 +16,44 @@ Include the class in to your project
 	include('mediaburstSMS.class.php');
 
 ### Sending a message
+
+You can send a message to a single number or an array of numbers
+
+1. Single
+
 	$sms = new mediaburstSMS('username', 'password');
-	$result = $sms->Send('mobile_number', 'Hello World');
+	$result = $sms->Send('447123456789', 'Hello World');
+
+2. Array
 	
+	$sms = new mediaburstSMS('username', 'password');
+	$result = $sms->Send(array('mobile_number_1', 'mobile_number_2'), 'Hello World');
+	
+The Send call will return an array of responses, one for each number sent to. 
+
+For a successfull send the response will contain the following:
+
+	Array ( 
+		'to'         => '447123456789',
+		'id'         => 'message_id',
+		'success'    => true
+	); 
+
+Whereas if a particular number failed it will look like this:
+
+	Array (
+		'to'         => 'not_a_number',
+		'error_no'   => 10,
+		'error_desc' => "Invalid 'To' Parameter",
+		'success'    => false 
+	);
+
+The success parameter allows you to quickly see if the message worked.
+
 ### Checking your credit
+
+Check how many SMS credits you currently have available
+
 	$sms = new mediaburstSMS('username', 'password');
 	$balance = $sms->CheckCredit();
 
