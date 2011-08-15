@@ -8,6 +8,10 @@ Installation
 ------------
 Simply download mediaburstSMS.class.php and include it in your project
 
+Prerequisites
+-------------
+PHP 5 or higher
+
 Usage
 -----
 
