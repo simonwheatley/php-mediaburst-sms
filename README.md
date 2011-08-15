@@ -58,18 +58,27 @@ Check how many SMS credits you currently have available
 
 ### Handling Errors
 The mediaburstSMS class will throw exceptions if the entire call failed. 
+These will be type mediaburstException for API errors and Exception 
+for other errors such as unable to connect to the server.  This allows
+you to handle the errors in your application.
 
 For example sending the wrong username:
 
 	try {
 		$sms = new mediaburstSMS('wrong_username', 'password');
 	} catch (mediaburstException $e) {
-		echo "Exception sending SMS: '.$e->getMessage();
+		echo 'SMS Exception: '.$e->getMessage();
+	} catch (Exception $e) {
+		echo 'Exception: '.$e->getMessage();
 	}
 
 will produce the response
 
-	Exception sending SMS: Invalid Username Or Password
+	SMS Exception: Invalid Username Or Password
+
+whereas, trying to send without an internet connection would produce
+
+        Exception: HTTP Error calling SMS API - HTTP Status: 0 - cURL Erorr: Couldn't resolve host 'sms.message-platform.com'	
 
 Advanced Usage
 --------------
@@ -80,9 +89,17 @@ This class has a few additional features that some users may find useful
 
 The SMS library supports optional parameters for the following:
 
-* Custom from address - The string displayed on a phone when they receive a message
-* Long SMS Support (Default: on) - A standard text can contain 160 characters, a long SMS supports up to 459.
-* Use SSL (Default: on) - Use SSL when making an HTTP request to the mediaburst API
+*   from [string]
+
+    The from address displayed on a phone when they receive a message
+
+*   long [boolean, default: true]  
+
+    Enable long SMS. A standard text can contain 160 characters, a long SMS supports up to 459.
+
+*   ssl [boolean, default: true]
+
+    Use SSL when making an HTTP request to the mediaburst API
 
 ### Setting Options
 Options can be passed as an array when creating the sms object

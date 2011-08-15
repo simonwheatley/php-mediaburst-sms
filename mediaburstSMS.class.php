@@ -8,7 +8,7 @@
  * @author      mediaburst <hello@mediaburst.co.uk>
  * @copyright   2011 Mediaburst Ltd
  * @license     ISC
- * @version	1.0
+ * @version	1.1
  * @since       1.0
  * @link	http://www.mediaburst.co.uk/api/	Mediaburst API Documentation
  * @link	https://github.com/mediaburst/  	Latest version of this class
@@ -71,7 +71,7 @@ class mediaburstSMS {
 		// options and defaults
 		$this->long = (array_key_exists('long', $options)) ? $options['long'] : true;
 		$this->from = (array_key_exists('from', $options)) ? $options['from'] : null;
-		$this->ssl  = (array_key_exists('ssl' , $options)) ? $options['ssl'] : true;
+		$this->ssl  = (array_key_exists('ssl' , $options)) ? $options['ssl'] : mediaburstHTTP::SSLSupport();
 	}
 
 	/* 
@@ -106,7 +106,8 @@ class mediaburstSMS {
 
 		$req_xml = $req_doc->saveXML();
 		$resp_xml = $this->PostToAPI($this->url_send, 'text/xml', $req_xml);
-		$resp_doc = DOMDocument::loadXML($resp_xml);
+		$resp_doc = new DOMDocument();
+		$resp_doc->loadXML($resp_xml);
 
 		$resp = array(); 
 		$err_no = null;
@@ -166,36 +167,23 @@ class mediaburstSMS {
 		}
 	}
 
-	/* 
+	/*
 	 * Make an HTTP POST to the mediaburst API server
-	 *
-	 * @param 	string	url	URL to send to
-	 * @param 	string	xml	XML data to POST
-	 * @return	string		XML data returned by server
+	 * 
+	 * @param	string	url	URL to send to
+	 * @param	string	type	MIME type of data
+	 * @param	string	data	Data to post
+	 * @return	string		Server response
 	 */
 	private function PostToAPI($url, $type, $data) {
-
 		if($this->ssl)
 			$url = 'https://'.$url;
 		else
 			$url = 'http://'.$url;
+		
+		$http = new mediaburstHTTP();
 
-		$params = array('http' => array(
-			'method' => 'POST',
-			'header' => "Content-Type: $type\r\n",
-			'content' => $data
-		));
-
-		$ctx = stream_context_create($params);
-		$fp = @fopen($url, 'rb', false, $ctx);
-		if (!$fp) {
-			throw new Exception("Problem with $url");
-		}
-		$response = @stream_get_contents($fp);
-		if ($response === false) {
-			throw new Exception("Problem reading data from $url");
-		}
-		return $response;
+		return $http->Post($url, $type, $data);
 	}
 
 
@@ -245,6 +233,7 @@ class mediaburstSMS {
  * The mediaburstSMS class will throw these if an error occurs
  *
  * @package     mediaburstSMS
+ * @since	1.0
  */
 class mediaburstException extends Exception {
 
@@ -254,3 +243,93 @@ class mediaburstException extends Exception {
         }
 }
 
+/* 
+ * mediaburstHTTP class
+ * 
+ * Wrapper class for HTTP calls, attempts to work round the 
+ * differences in PHP versions, such as SSL & curl support
+ * 
+ * @package	mediaburstSMS
+ * @since	1.1
+ */
+class mediaburstHTTP { 
+
+	/*
+	 * Check if PHP has SSL support compiled in
+	 *
+	 * @returns     True if SSL is supported
+	 */
+	public static function SSLSupport() {
+		$ssl = false;
+		// See if PHP compiled with cURL
+		if(extension_loaded('curl')) {
+			$version = curl_version();
+			$ssl = ($version['features'] & CURL_VERSION_SSL) ? true : false;
+		} elseif (extension_loaded('openssl')) { 
+			$ssl = true;
+		}
+		return $ssl;
+	}
+
+	/* 
+	 * Make an HTTP POST 
+	 * 
+	 * cURL will be used if available, otherwise tries the PHP stream functions
+	 * The PHP stream functions require at least PHP 5.0, cURL should work with PHP 4
+	 *
+	 * @param 	string	url	URL to send to
+	 * @param	string	type	MIME Type of data
+	 * @param 	string	data	Data to POST
+	 * @return	string		Response returned by server
+	 */
+	public function Post($url, $type, $data) {
+		if(extension_loaded('curl')) {
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: $type"));
+			curl_setopt($ch, CURLOPT_USERAGENT, "mediaburst PHP Wrapper/1.1.0");
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+			$response = curl_exec($ch);
+			$info = curl_getinfo($ch);
+
+			if ($response === false || $info['http_code'] != 200) {
+				throw new Exception('HTTP Error calling SMS API - HTTP Status: '.$info['http_code'].' - cURL Erorr: '.curl_error($ch));
+			} elseif(curl_errno($ch) > 0) {
+				throw new Exception('HTTP Error calling SMS API - cURL Error: '.curl_error($ch));
+			}
+
+			curl_close($ch);
+
+			return $response;
+		} elseif(function_exists('stream_get_contents')) {
+
+			// Enable error Track Errors
+			$track = ini_get('track_errors');
+			ini_set('track_errors',true);
+
+			$params = array('http' => array(
+				'method' => 'POST',
+				'header' => "Content-Type: $type\r\nUser-Agent: mediaburst PHP Wrapper/1.1.0\r\n",
+				'content' => $data
+			));
+	
+			$ctx = stream_context_create($params);
+			$fp = @fopen($url, 'rb', false, $ctx);
+			if (!$fp) {
+				ini_set('track_errors',$track);
+				throw new Exception("HTTP Error calling SMS API - fopen Error: $php_errormsg");
+			}
+			$response = @stream_get_contents($fp);
+			if ($response === false) {
+				ini_set('track_errors',$track);
+				throw new Exception("HTTP Error calling SMS API - Stream Error: $php_errormsg");
+			}
+			ini_set('track_errors',$track);
+			return $response;
+		} else {
+			throw new Exception("mediaburstSMS requires PHP5 or PHP4 with cURL");
+		}		
+	}
+}
