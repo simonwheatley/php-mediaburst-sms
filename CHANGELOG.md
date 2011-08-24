@@ -1,5 +1,9 @@
 # php-mediaburst-sms Changelog
 
+## 1.2 (24th Aug 2011)
+*	Update CheckCredit function to use the mediaburst XML API, no change to 
+	functionality, brings this wrapper in to line with API documentation.
+
 ## 1.1 (15th Aug 2011)
 *   New mediaburstHTTP class
     Compatability wrapper around cURL and PHP stream interfaces for HTTP requests,

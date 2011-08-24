@@ -8,10 +8,10 @@
  * @author      mediaburst <hello@mediaburst.co.uk>
  * @copyright   2011 Mediaburst Ltd
  * @license     ISC
- * @version	1.1
+ * @version	1.2
  * @since       1.0
  * @link	http://www.mediaburst.co.uk/api/	Mediaburst API Documentation
- * @link	https://github.com/mediaburst/  	Latest version of this class
+ * @link	https://github.com/mediaburst/		Latest version of this class
  */
 
 /* 
@@ -36,7 +36,8 @@
  */
 class mediaburstSMS {
 	private $url_send = 'sms.message-platform.com/xml/send.aspx';
-	private $url_credit = 'sms.message-platform.com/http/credit.aspx';
+	private $url_credit = 'sms.message-platform.com/xml/credit.aspx';
+
 	private $username;
 	private $password;
 	private $from;
@@ -52,9 +53,9 @@ class mediaburstSMS {
 	 * e.g. $sms = new mediaburstSMS();
 	 * 
 	 * @param string username	mediaburst SMS API username
-	 * 				Leave blank to use the MEDIABURST_USER constant 
+	 *				Leave blank to use the MEDIABURST_USER constant 
 	 * @param string password	mediaburst SMS API password
-	 * 				Leave blank to use the MEDIABURST_PASS constant
+	 *				Leave blank to use the MEDIABURST_PASS constant
 	 * @param array	 options	Optional parameters for sending SMS
 	 */
 	public function __construct( $username="", $password="", $options = array() ) {
@@ -77,7 +78,7 @@ class mediaburstSMS {
 	/* 
 	 * Sends a text message
 	 * 
-	 * @param mixed 	to 	Either a string containing a single mobile 
+	 * @param mixed		to	Either a string containing a single mobile 
 	 *				number or an array of numbers
 	 * @param string	message	The text message to send
 	 */
@@ -105,7 +106,7 @@ class mediaburstSMS {
 		}
 
 		$req_xml = $req_doc->saveXML();
-		$resp_xml = $this->PostToAPI($this->url_send, 'text/xml', $req_xml);
+		$resp_xml = $this->PostToAPI($this->url_send, $req_xml);
 		$resp_doc = new DOMDocument();
 		$resp_doc->loadXML($resp_xml);
 
@@ -156,26 +157,48 @@ class mediaburstSMS {
 	 * @returns	long		Number of SMS you can send
 	 */
 	public function CheckCredit() {
-		$params = http_build_query(array('username' => $this->username, 'password' => $this->password));
-		$resp = $this->PostToAPI($this->url_credit, 'application/x-www-form-urlencoded', $params);
-		if(preg_match('/Error (\d+): (.*)/', $resp, $err_match)) {
-			throw new mediaburstException($err_match[2], $err_match[1]);
-		} elseif(preg_match('/Current Credit: (\d+)/', $resp, $credit_match)) {
-			return $credit_match[1];
-		} else {
-			throw new mediaburstException("Invalid Response from API: $resp");
+		$req_doc = new DOMDocument('1.0', 'UTF-8');
+		$root = $req_doc->createElement('Credit');
+		$req_doc->appendChild($root);
+		$root->appendChild($req_doc->createElement('Username', $this->username));
+		$root->appendChild($req_doc->createElement('Password', $this->password));
+		
+		$req_xml = $req_doc->saveXML();		
+		$resp_xml = $this->PostToAPI($this->url_credit, $req_xml);
+		
+		$resp_doc = new DOMDocument();
+		$resp_doc->loadXML($resp_xml);
+		
+		$credit;
+		$err_no = null;
+		$err_desc = null;
+		foreach($resp_doc->documentElement->childNodes AS $doc_child) {
+			switch($doc_child->nodeName) {
+				case "Credit":
+					$credit = $doc_child->nodeValue;
+					break;
+				case "ErrNo":
+					$err_no = $doc_child->nodeValue;
+					break;
+				case "ErrDesc":
+					$err_desc = $doc_child->nodeValue;
+					break;
+			}
 		}
+		if(isset($err_no)) 
+			throw new mediaburstException($err_desc, $err_no);
+		
+		return $credit;
 	}
 
 	/*
 	 * Make an HTTP POST to the mediaburst API server
 	 * 
 	 * @param	string	url	URL to send to
-	 * @param	string	type	MIME type of data
 	 * @param	string	data	Data to post
 	 * @return	string		Server response
 	 */
-	private function PostToAPI($url, $type, $data) {
+	private function PostToAPI($url, $data) {
 		if($this->ssl)
 			$url = 'https://'.$url;
 		else
@@ -183,7 +206,7 @@ class mediaburstSMS {
 		
 		$http = new mediaburstHTTP();
 
-		return $http->Post($url, $type, $data);
+		return $http->Post($url, 'text/xml', $data);
 	}
 
 
@@ -277,9 +300,9 @@ class mediaburstHTTP {
 	 * cURL will be used if available, otherwise tries the PHP stream functions
 	 * The PHP stream functions require at least PHP 5.0, cURL should work with PHP 4
 	 *
-	 * @param 	string	url	URL to send to
+	 * @param	string	url	URL to send to
 	 * @param	string	type	MIME Type of data
-	 * @param 	string	data	Data to POST
+	 * @param	string	data	Data to POST
 	 * @return	string		Response returned by server
 	 */
 	public function Post($url, $type, $data) {
