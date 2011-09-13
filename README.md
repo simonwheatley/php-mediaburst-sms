@@ -128,6 +128,12 @@ For exmaple:
 	$sms = new mediaburstSMS();
 	$result = $sms->Send('mobile_number', 'Hello World');
 
+License
+-------
+
+The mediaburstSMS library is distributed under the ISC license. 
+A copy of the license is included in license.txt
+
 Contributing
 ------------
 
