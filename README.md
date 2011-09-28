@@ -82,7 +82,7 @@ will produce the response
 
 whereas, trying to send without an internet connection would produce
 
-        Exception: HTTP Error calling SMS API - HTTP Status: 0 - cURL Erorr: Couldn't resolve host 'sms.message-platform.com'	
+        Exception: HTTP Error calling SMS API - HTTP Status: 0 - cURL Error: Couldn't resolve host 'sms.message-platform.com'	
 
 Advanced Usage
 --------------
@@ -104,6 +104,14 @@ The SMS library supports optional parameters for the following:
 *   ssl [boolean, default: true]
 
     Use SSL when making an HTTP request to the mediaburst API
+
+* 	proxy_host [string]
+
+	Hostname of your proxy server
+
+*	proxy_port [integer]
+
+	Port number on your proxy server
 
 ### Setting Options
 Options can be passed as an array when creating the sms object
@@ -127,6 +135,18 @@ For exmaple:
 	define('MEDIABURST_PASS', 'password');
 	$sms = new mediaburstSMS();
 	$result = $sms->Send('mobile_number', 'Hello World');
+
+### Using a proxy server
+
+The wrapper supports requests through an HTTP proxy server, simply set the proxy_host and 
+proxy_port optional parameters.
+
+For example:
+
+	$sms = new mediaburstSMS('username', 'password');
+	$sms->proxy_host = "proxy.example.com";
+	$sms->proxy_port = 3128;
+
 
 License
 -------

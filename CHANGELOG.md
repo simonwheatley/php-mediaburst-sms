@@ -1,5 +1,9 @@
 # php-mediaburst-sms Changelog
 
+## 1.3 (28th Sep 2011)
+*	Add support for Proxy servers, set the proxy_host and proxy_port 
+	parameters.
+
 ## 1.2 (24th Aug 2011)
 *	Update CheckCredit function to use the mediaburst XML API, no change to 
 	functionality, brings this wrapper in to line with API documentation.
