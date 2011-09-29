@@ -42,6 +42,7 @@ class mediaburstSMS {
 	private $password;
 	private $from;
 	private $long;
+	private $truncate;
 	private $ssl;
 	// Proxy server fields
 	private $proxy_host;
@@ -75,7 +76,8 @@ class mediaburstSMS {
 		// options and defaults
 		$this->long = (array_key_exists('long', $options)) ? $options['long'] : true;
 		$this->from = (array_key_exists('from', $options)) ? $options['from'] : null;
-		$this->ssl  = (array_key_exists('ssl' , $options)) ? $options['ssl'] : mediaburstHTTP::SSLSupport();
+		$this->truncate = (array_key_exists('truncate', $options)) ? $options['truncate'] : false;
+		$this->ssl = (array_key_exists('ssl' , $options)) ? $options['ssl'] : mediaburstHTTP::SSLSupport();
 		$this->proxy_host = (array_key_exists('proxy_host', $options)) ? $options['proxy_host'] : null;
 		$this->proxy_port = (array_key_exists('proxy_port', $options)) ? $options['proxy_port'] : null;
 	}
@@ -106,6 +108,8 @@ class mediaburstSMS {
 				$sms_node->appendChild($req_doc->createElement('Concat', 3));
 			if($this->from)
 				$sms_node->appendChild($req_doc->createElement('From', $this->from));
+			if($this->truncate)
+				$sms_node->appendChild($req_doc->createElement('Truncate', 1));
 
 			$root->appendChild($sms_node);
 		}
@@ -249,6 +253,13 @@ class mediaburstSMS {
 		$this->long = $value;
 	}
 	
+	private function get_truncate() {
+		return $this->truncate;
+	}
+	private function set_truncate($value) {
+		$this->truncate = $value;
+	}
+
 	private function get_ssl() {
 		return $this->ssl;
 	}
