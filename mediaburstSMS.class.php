@@ -163,6 +163,9 @@ class mediaburstSMS {
 							case "ErrDesc":
 								$sms['error_desc'] = $resp_node->nodeValue;
 								break;
+							default:
+								$sms[strtolower($resp_node->nodeName)] = $resp_node->nodeValue;
+								break;
 						}
 					}
 					$sms['success'] = !array_key_exists('error_no', $sms);
