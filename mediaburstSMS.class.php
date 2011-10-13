@@ -104,9 +104,10 @@ class mediaburstSMS {
 	 * @param mixed	$to	Either a string containing a single mobile 
 	 *				number or an array of numbers
 	 * @param string $message The text message to send
+	 * @param array $add_params An associative array of additional parameters to send with the request
 	 * return An array of responses, each response as an array 
 	 */
-	public function Send( $to, $message ) {
+	public function Send( $to, $message, $add_params = array() ) {
 		// Make single number in to array for easy processing
 		if (!is_array($to)) 
 			$to = array($to);
@@ -127,14 +128,17 @@ class mediaburstSMS {
 				$sms_node->appendChild($req_doc->createElement('From', $this->from));
 			if($this->truncate)
 				$sms_node->appendChild($req_doc->createElement('Truncate', 1));
-
+			foreach ( $add_params as $param => $value )
+				$sms_node->appendChild($req_doc->createElement($param, $value));
 			$root->appendChild($sms_node);
 		}
 
 		$req_xml = $req_doc->saveXML();
 		if ( $this->log )
-			$this->LogXML( 'Send SMS XML', $req_xml );
+			$this->LogXML( 'Send SMS Request', $req_xml );
 		$resp_xml = $this->PostToAPI($this->url_send, $req_xml);
+		if ( $this->log )
+			$this->LogXML( 'Send SMS Reply', $resp_xml );
 		$resp_doc = new DOMDocument();
 		$resp_doc->loadXML($resp_xml);
 
@@ -180,7 +184,7 @@ class mediaburstSMS {
 	}
 
 	/*
-         * Check how much credit you have available on your mediaburst API account
+	 * Check how much credit you have available on your mediaburst API account
 	 *
 	 * @returns	long		Number of SMS you can send
 	 */
@@ -192,7 +196,11 @@ class mediaburstSMS {
 		$root->appendChild($req_doc->createElement('Password', $this->password));
 		
 		$req_xml = $req_doc->saveXML();		
+		if ( $this->log )
+			$this->LogXML( 'Credit Balance Request', $req_xml );
 		$resp_xml = $this->PostToAPI($this->url_credit, $req_xml);
+		if ( $this->log )
+			$this->LogXML( 'Credit Balance Reply', $resp_xml );
 		
 		$resp_doc = new DOMDocument();
 		$resp_doc->loadXML($resp_xml);
