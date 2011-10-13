@@ -48,6 +48,13 @@ class mediaburstSMS {
 	private $proxy_host;
 	private $proxy_port;
 	
+	/**
+	 * Enables various logging of messages when true.
+	 *
+	 * @var bool
+	 **/
+	protected $log;
+	
 	/*
 	 * Create a mediaburstSMS object
 	 *
@@ -80,14 +87,24 @@ class mediaburstSMS {
 		$this->ssl = (array_key_exists('ssl' , $options)) ? $options['ssl'] : mediaburstHTTP::SSLSupport();
 		$this->proxy_host = (array_key_exists('proxy_host', $options)) ? $options['proxy_host'] : null;
 		$this->proxy_port = (array_key_exists('proxy_port', $options)) ? $options['proxy_port'] : null;
+		$this->log = (array_key_exists('log', $options)) ? $options['log'] : false;
 	}
 
 	/* 
-	 * Sends a text message
+	 * Sends a text message.
 	 * 
-	 * @param mixed		to	Either a string containing a single mobile 
+	 * The response is returned as an array of responses, each 
+	 * response looking similar to:
+	 * Array (
+	 * 		[to] => 447971687295
+	 * 		[id] => VE_127890871
+	 * 		[success] => 1
+	 * )
+	 * 
+	 * @param mixed	$to	Either a string containing a single mobile 
 	 *				number or an array of numbers
-	 * @param string	message	The text message to send
+	 * @param string $message The text message to send
+	 * return An array of responses, each response as an array 
 	 */
 	public function Send( $to, $message ) {
 		// Make single number in to array for easy processing
@@ -115,6 +132,8 @@ class mediaburstSMS {
 		}
 
 		$req_xml = $req_doc->saveXML();
+		if ( $this->log )
+			$this->LogXML( 'Send SMS XML', $req_xml );
 		$resp_xml = $this->PostToAPI($this->url_send, $req_xml);
 		$resp_doc = new DOMDocument();
 		$resp_doc->loadXML($resp_xml);
@@ -220,6 +239,30 @@ class mediaburstSMS {
 		return $http->Post($url, 'text/xml', $data);
 	}
 
+	/**
+	 * Log some XML, tidily if possible, in the PHP error log
+	 *
+	 * @param string $log_msg The log message to prepend to the XML
+	 * @param string $xml An XML formatted string
+	 * @return void
+	 **/
+	protected function LogXML( $log_msg, $xml ) {
+		// Tidy if possible
+		if ( class_exists( 'tidy' ) ) {
+			$tidy = new tidy;
+			$config = array(
+				'indent' => true,
+				'input-xml'	=> true,
+				'output-xml' => true,
+				'wrap' => 200
+			);
+			$tidy->parseString( $xml, $config, 'utf8' );
+			$tidy->cleanRepair();
+			$xml = $tidy;
+		}
+		// Output
+		error_log( "MBSMS $log_msg:  $xml" );
+	}
 
 	// Use PHP magic function to create GET property accessor 
 	// i.e. $sms->from will call get_from() on the object
