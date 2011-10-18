@@ -95,8 +95,6 @@ class mediaburstSMS {
 		$this->proxy_port = (array_key_exists('proxy_port', $options)) ? $options['proxy_port'] : null;
 		$this->log = (array_key_exists('log', $options)) ? $options['log'] : false;
 		$this->http_class = (array_key_exists('http_class', $options)) ? $options['http_class'] : 'mediaburstHTTP';
-		$http_class = $this->http_class;
-		$this->ssl = (array_key_exists('ssl' , $options)) ? $options['ssl'] : $http_class::SSLSupport();
 	}
 
 	/* 
@@ -247,12 +245,12 @@ class mediaburstSMS {
 	 * @return	string		Server response
 	 */
 	private function PostToAPI($url, $data) {
-		if($this->ssl)
+		$http_class = $this->http_class;
+		if($http_class->SSLSupport())
 			$url = 'https://'.$url;
 		else
 			$url = 'http://'.$url;
 		
-		$http_class = $this->http_class;
 		$http = new $http_class();
 		$http->proxy_host = isset($this->proxy_host) ? $this->proxy_host : null;
 		$http->proxy_port = isset($this->proxy_port) ? $this->proxy_port : null;
@@ -325,10 +323,9 @@ class mediaburstSMS {
 	}
 
 	private function get_ssl() {
-		return $this->ssl;
-	}
-	private function set_ssl($value) {
-		$this->ssl = $value;
+		$http_class = $this->http_class;
+		$http = new $http_class();
+		return $http->SSLSupport();
 	}
 
 	private function get_proxy_host() {
@@ -387,7 +384,7 @@ class mediaburstHTTP {
 	 *
 	 * @returns     True if SSL is supported
 	 */
-	public static function SSLSupport() {
+	public function SSLSupport() {
 		$ssl = false;
 		// See if PHP compiled with cURL
 		if(extension_loaded('curl')) {
