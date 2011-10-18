@@ -55,6 +55,13 @@ class mediaburstSMS {
 	 **/
 	protected $log;
 	
+	/**
+	 * The name of the class to use for HTTP transport
+	 *
+	 * @var string
+	 **/
+	protected $http_class;
+	
 	/*
 	 * Create a mediaburstSMS object
 	 *
@@ -84,10 +91,12 @@ class mediaburstSMS {
 		$this->long = (array_key_exists('long', $options)) ? $options['long'] : true;
 		$this->from = (array_key_exists('from', $options)) ? $options['from'] : null;
 		$this->truncate = (array_key_exists('truncate', $options)) ? $options['truncate'] : false;
-		$this->ssl = (array_key_exists('ssl' , $options)) ? $options['ssl'] : mediaburstHTTP::SSLSupport();
 		$this->proxy_host = (array_key_exists('proxy_host', $options)) ? $options['proxy_host'] : null;
 		$this->proxy_port = (array_key_exists('proxy_port', $options)) ? $options['proxy_port'] : null;
 		$this->log = (array_key_exists('log', $options)) ? $options['log'] : false;
+		$this->http_class = (array_key_exists('http_class', $options)) ? $options['http_class'] : 'mediaburstHTTP';
+		$http_class = $this->http_class;
+		$this->ssl = (array_key_exists('ssl' , $options)) ? $options['ssl'] : $http_class::SSLSupport();
 	}
 
 	/* 
@@ -243,7 +252,8 @@ class mediaburstSMS {
 		else
 			$url = 'http://'.$url;
 		
-		$http = new mediaburstHTTP();
+		$http_class = $this->http_class;
+		$http = new $http_class();
 		$http->proxy_host = isset($this->proxy_host) ? $this->proxy_host : null;
 		$http->proxy_port = isset($this->proxy_port) ? $this->proxy_port : null;
 
@@ -357,6 +367,12 @@ class mediaburstException extends Exception {
  * 
  * Wrapper class for HTTP calls, attempts to work round the 
  * differences in PHP versions, such as SSL & curl support
+ * 
+ * If you prefer to integrate with an existing set of HTTP 
+ * functionality in your framework or CMS, you can extend
+ * or completely replace this class, then pass the new
+ * class name into your mediaburstSMS instance as the
+ * http_class option (string).
  * 
  * @package	mediaburstSMS
  * @since	1.1
