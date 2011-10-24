@@ -8,7 +8,7 @@
  * @author      mediaburst <hello@mediaburst.co.uk>
  * @copyright   2011 Mediaburst Ltd
  * @license     ISC
- * @version	1.2
+ * @version		1.3.1
  * @since       1.0
  * @link	http://www.mediaburst.co.uk/api/	Mediaburst API Documentation
  * @link	https://github.com/mediaburst/		Latest version of this class
@@ -35,8 +35,8 @@
  * @package	mediaburstSMS * 
  */
 class mediaburstSMS {
-	private $url_send = 'sms.message-platform.com/xml/send.aspx';
-	private $url_credit = 'sms.message-platform.com/xml/credit.aspx';
+	private $url_send = 'api.mediaburst.co.uk/xml/send.aspx';
+	private $url_credit = 'api.mediaburst.co.uk/xml/credit.aspx';
 
 	private $username;
 	private $password;

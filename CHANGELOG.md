@@ -1,5 +1,8 @@
 # php-mediaburst-sms Changelog
 
+## 1.3.1 (24th Oct 2011)
+*	Change internal API Urls to use api.mediaburst.co.uk 	
+
 ## 1.3 (28th Sep 2011)
 *	Add support for Proxy servers, set the proxy_host and proxy_port 
 	parameters.
