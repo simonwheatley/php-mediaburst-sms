@@ -95,7 +95,7 @@ class mediaburstSMS {
 		$this->proxy_port = (array_key_exists('proxy_port', $options)) ? $options['proxy_port'] : null;
 		$this->log = (array_key_exists('log', $options)) ? $options['log'] : false;
 		$this->http_class = (array_key_exists('http_class', $options)) ? $options['http_class'] : 'mediaburstHTTP';
-		$this->ssl = (array_key_exists('log', $options)) ? $options['log'] : true;
+		$this->ssl = (array_key_exists('ssl', $options)) ? $options['ssl'] : true;
 	}
 
 	/* 
@@ -247,12 +247,13 @@ class mediaburstSMS {
 	 */
 	private function PostToAPI($url, $data) {
 		$http_class = $this->http_class;
-		if($ssl && $http_class->SSLSupport())
+		$http = new $http_class();
+
+		if($this->ssl && $http->SSLSupport())
 			$url = 'https://'.$url;
 		else
 			$url = 'http://'.$url;
 		
-		$http = new $http_class();
 		$http->proxy_host = isset($this->proxy_host) ? $this->proxy_host : null;
 		$http->proxy_port = isset($this->proxy_port) ? $this->proxy_port : null;
 
@@ -326,7 +327,7 @@ class mediaburstSMS {
 	private function get_ssl() {
 		$http_class = $this->http_class;
 		$http = new $http_class();
-		return $ssl && $http->SSLSupport();
+		return $this->ssl && $http->SSLSupport();
 	}
 	private function set_ssl($value) {
 		$this->ssl = $value;
