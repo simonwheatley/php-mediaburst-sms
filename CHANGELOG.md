@@ -1,11 +1,15 @@
 # php-mediaburst-sms Changelog
 
+## 1.4 (15th Feb 2012)
+*	Add request logging support, set the log option and the XML will be output to the PHP error log
+*	Allow a different class to be used for HTTP transport.	Primarily used for developing 
+	plugins in systems that have their own HTTP wrappers such as WordPress
+
 ## 1.3.1 (24th Oct 2011)
 *	Change internal API Urls to use api.mediaburst.co.uk 	
 
 ## 1.3 (28th Sep 2011)
-*	Add support for Proxy servers, set the proxy_host and proxy_port 
-	parameters.
+*	Add support for Proxy servers, set the proxy_host and proxy_port parameters.
 
 ## 1.2 (24th Aug 2011)
 *	Update CheckCredit function to use the mediaburst XML API, no change to 

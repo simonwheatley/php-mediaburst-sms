@@ -8,7 +8,7 @@
  * @author      mediaburst <hello@mediaburst.co.uk>
  * @copyright   2011 Mediaburst Ltd
  * @license     ISC
- * @version		1.3.1
+ * @version		1.4
  * @since       1.0
  * @link	http://www.mediaburst.co.uk/api/	Mediaburst API Documentation
  * @link	https://github.com/mediaburst/		Latest version of this class
