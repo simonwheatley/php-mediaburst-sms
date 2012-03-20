@@ -1,5 +1,8 @@
 # php-mediaburst-sms Changelog
 
+## 1.4.1 (20th March 2012)
+*	Escaping bad characters in the message to stop a DOMDocument error being thrown when sending an &, <, >, " or '.
+
 ## 1.4 (15th Feb 2012)
 *	Add request logging support, set the log option and the XML will be output to the PHP error log
 *	Allow a different class to be used for HTTP transport.	Primarily used for developing 
