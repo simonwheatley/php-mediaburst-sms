@@ -120,8 +120,8 @@ class mediaburstSMS {
 		if (!is_array($to)) 
 			$to = array($to);
     
-    // Escape dodgy characters as DOMDocument throws a paddy
-    $message = htmlentities( $message, ENT_QUOTES | ENT_XML1, 'UTF-8' );
+		// Escape dodgy characters as DOMDocument throws a paddy
+		$message = htmlentities( $message, ENT_QUOTES | ENT_XML1, 'UTF-8' );
 		
 		$req_doc = new DOMDocument('1.0', 'UTF-8');
 		$root = $req_doc->createElement('Message');
